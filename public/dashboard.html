@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои группы - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-gift"></i>
+                Тайный Санта
+            </a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="nav-link active">
+                    <i class="fas fa-home"></i> Мои группы
+                </a>
+                <a href="create-group.html" class="nav-link">
+                    <i class="fas fa-plus"></i> Создать группу
+                </a>
+                <a href="join-group.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span data-user-name></span>
+                    <button onclick="API.logout()" class="btn btn-secondary btn-small">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container dashboard">
+        <div class="section-title">
+            <h1>Мои группы</h1>
+            <div style="display: flex; gap: 12px;">
+                <a href="join-group.html" class="btn btn-secondary">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <a href="create-group.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Новая группа
+                </a>
+            </div>
+        </div>
+        
+        <div id="groupsContainer" class="groups-grid">
+            <!-- Группы будут загружены здесь -->
+        </div>
+        
+        <div id="emptyState" class="text-center" style="display: none;">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <i class="fas fa-users" style="font-size: 64px; color: #E9ECEF; margin-bottom: 24px;"></i>
+                <h3>У вас пока нет групп</h3>
+                <p style="color: #6C757D;">Создайте первую группу или присоединитесь к существующей</p>
+                <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
+                    <a href="create-group.html" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Создать группу
+                    </a>
+                    <a href="join-group.html" class="btn btn-secondary">
+                        <i class="fas fa-user-plus"></i> Присоединиться
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Загрузка групп пользователя
+        async function loadUserGroups() {
+            try {
+                const result = await API.getUserGroups();
+                const container = document.getElementById('groupsContainer');
+                const emptyState = document.getElementById('emptyState');
+                
+                if (result.groups.length === 0) {
+                    container.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                result.groups.forEach(group => {
+                    const groupCard = createGroupCard(group);
+                    container.appendChild(groupCard);
+                });
+            } catch (error) {
+                Utils.showNotification('Ошибка загрузки групп', 'error');
+            }
+        }
+        
+        // Создание карточки группы
+        function createGroupCard(group) {
+            const card = Utils.createElement('div', 'group-card');
+            
+            // Определяем статус
+            let statusText = 'Активна';
+            let statusClass = 'status-active';
+            if (group.status === 'completed') {
+                statusText = 'Завершена';
+                statusClass = 'status-completed';
+            }
+            
+            card.innerHTML = `
+                <div class="group-header">
+                    <h3 style="margin: 0;">${group.name}</h3>
+                    <span class="group-code">${group.code}</span>
+                </div>
+                
+                <p style="color: #6C757D; margin-bottom: 16px;">${group.description || 'Без описания'}</p>
+                
+                <div class="group-meta">
+                    <span><i class="fas fa-users"></i> ${group.participantsCount}/${group.maxParticipants}</span>
+                    <span><i class="fas fa-calendar"></i> ${Utils.formatDate(group.createdAt)}</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <span style="background: ${group.status === 'active' ? '#4ECDC4' : '#6C757D'}; 
+                          color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">
+                        ${statusText}
+                    </span>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <a href="group.html?id=${group.id}" class="btn btn-primary btn-small">
+                            <i class="fas fa-door-open"></i> Открыть группу
+                        </a>
+                        ${group.isAdmin && group.status === 'active' ? 
+                            `<button onclick="startDraw('${group.id}')" class="btn btn-secondary btn-small" title="Провести жеребьевку">
+                                <i class="fas fa-random"></i>
+                            </button>` : ''
+                        }
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Проведение жеребьевки
+        async function startDraw(groupId) {
+            if (!confirm('Провести жеребьевку? После этого новые участники не смогут присоединиться.')) {
+                return;
+            }
+            
+            try {
+                await API.drawGroup(groupId);
+                Utils.showNotification('Жеребьевка проведена успешно!');
+                loadUserGroups();
+            } catch (error) {
+                Utils.showNotification(error.message, 'error');
+            }
+        }
+        
+        // Загружаем группы при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadUserGroups);
+    </script>
+</body>
+</html>

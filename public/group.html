@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Группа - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .group-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E9ECEF;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .wishlist-preview {
+            background: #F7FFF7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        
+        .wishlist-preview ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .receiver-card {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-gift"></i>
+                Тайный Санта
+            </a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Мои группы
+                </a>
+                <a href="create-group.html" class="nav-link">
+                    <i class="fas fa-plus"></i> Создать группу
+                </a>
+                <a href="join-group.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <button onclick="API.logout()" class="btn btn-secondary btn-small">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container dashboard">
+        <div class="section-title">
+            <h1 id="groupName">Загрузка...</h1>
+            <div style="display: flex; gap: 12px;">
+                <a href="dashboard.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+                <button onclick="copyInviteLink()" class="btn btn-primary">
+                    <i class="fas fa-share"></i> Пригласить
+                </button>
+            </div>
+        </div>
+        
+        <!-- Информация о группе -->
+        <div id="groupInfo" class="info-card" style="display: none;">
+            <div class="info-row">
+                <span style="color: #6C757D;">Код группы:</span>
+                <span id="groupCode" style="font-family: monospace; font-weight: 600;"></span>
+            </div>
+            <div class="info-row">
+                <span style="color: #6C757D;">Статус:</span>
+                <span id="groupStatus"></span>
+            </div>
+            <div class="info-row">
+                <span style="color: #6C757D;">Организатор:</span>
+                <span id="groupAdmin"></span>
+            </div>
+            <div class="info-row">
+                <span style="color: #6C757D;">Участники:</span>
+                <span id="groupParticipants"></span>
+            </div>
+            <div class="info-row">
+                <span style="color: #6C757D;">Дата создания:</span>
+                <span id="groupCreated"></span>
+            </div>
+        </div>
+        
+        <!-- Действия -->
+        <div id="groupActions" class="group-actions" style="display: none;">
+            <a href="#" id="wishlistLink" class="btn btn-primary">
+                <i class="fas fa-list-check"></i> Мой список желаний
+            </a>
+            <button onclick="viewReceiver()" id="viewReceiverBtn" class="btn btn-secondary" style="display: none;">
+                <i class="fas fa-gift"></i> Мой получатель
+            </button>
+            <button onclick="startDraw()" id="startDrawBtn" class="btn btn-secondary" style="display: none;">
+                <i class="fas fa-random"></i> Провести жеребьевку
+            </button>
+            <button onclick="viewAllAssignments()" id="viewAllAssignmentsBtn" class="btn btn-secondary" style="display: none;">
+                <i class="fas fa-eye"></i> Все назначения
+            </button>
+        </div>
+
+        <!-- Получатель -->
+        <div id="receiverSection" class="receiver-card" style="display: none;">
+            <h2 style="margin-bottom: 16px;">🎁 Ваш получатель</h2>
+            <h3 id="receiverName" style="margin-bottom: 24px;"></h3>
+            
+            <div id="receiverWishlist" style="text-align: left; margin-top: 24px;">
+                <h4 style="margin-bottom: 12px;">
+                    <i class="fas fa-list-check"></i> Список желаний:
+                </h4>
+                <div id="wishlistItems"></div>
+            </div>
+            
+            <p style="margin-top: 24px; opacity: 0.9; font-style: italic;">
+                <i class="fas fa-shield-alt"></i> Это секретная информация! Не говорите никому!
+            </p>
+        </div>
+        
+        <!-- Получатель -->
+        <div id="receiverSection" class="receiver-card" style="display: none;">
+            <h2 style="margin-bottom: 16px;">🎁 Ваш получатель</h2>
+            <h3 id="receiverName" style="margin-bottom: 24px;"></h3>
+            
+            <div id="receiverWishlist" style="text-align: left; margin-top: 24px;">
+                <h4 style="margin-bottom: 12px;">Список желаний:</h4>
+                <div id="wishlistItems"></div>
+            </div>
+            
+            <p style="margin-top: 24px; opacity: 0.9; font-style: italic;">
+                Это секретная информация! Не говорите никому!
+            </p>
+        </div>
+        
+        <!-- Участники -->
+        <div class="card">
+            <h2 style="margin-bottom: 24px;">Участники группы</h2>
+            <div id="participantsList">
+                <!-- Участники будут загружены здесь -->
+            </div>
+        </div>
+        
+        <!-- Приглашение -->
+        <div id="inviteModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2 style="margin: 0;">Пригласить в группу</h2>
+                    <button onclick="closeInviteModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6C757D;">
+                        ×
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ссылка для приглашения:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="inviteLink" class="form-control" readonly>
+                        <button onclick="copyLink()" class="btn btn-primary">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Код группы:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="inviteCode" class="form-control" readonly 
+                               style="font-family: monospace; font-weight: 600; text-transform: uppercase;">
+                        <button onclick="copyCode()" class="btn btn-primary">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px; padding: 16px; background: #F7FFF7; border-radius: 8px;">
+                    <p style="margin: 0; color: #6C757D;">
+                        <i class="fas fa-info-circle"></i> Отправьте эту информацию друзьям, чтобы они могли присоединиться
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentGroup = null;
+        let currentGroupId = null;
+        
+        // Загрузка информации о группе
+        async function loadGroup() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentGroupId = urlParams.get('id');
+            
+            if (!currentGroupId) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            try {
+                const result = await API.getGroup(currentGroupId);
+                currentGroup = result.group;
+                displayGroupInfo();
+                displayParticipants();
+                updateActions();
+                
+                // Если есть получатель, показываем его
+                if (currentGroup.myReceiver) {
+                    displayReceiver(currentGroup.myReceiver);
+                }
+            } catch (error) {
+                Utils.showNotification('Ошибка загрузки группы', 'error');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            }
+        }
+        
+        // Отображение информации о группе
+        function displayGroupInfo() {
+            document.getElementById('groupName').textContent = currentGroup.name;
+            document.getElementById('groupCode').textContent = currentGroup.code;
+            document.getElementById('groupAdmin').textContent = currentGroup.participants.find(p => p.isAdmin)?.name || 'Организатор';
+            document.getElementById('groupParticipants').textContent = `${currentGroup.participantsCount}/${currentGroup.maxParticipants}`;
+            document.getElementById('groupCreated').textContent = Utils.formatDate(currentGroup.createdAt);
+            
+            let statusText = 'Активна';
+            let statusColor = '#4ECDC4';
+            let statusIcon = '🟢';
+            if (currentGroup.status === 'completed') {
+                statusText = 'Жеребьевка проведена';
+                statusColor = '#FF6B6B';
+                statusIcon = '🎁';
+            }
+            
+            document.getElementById('groupStatus').innerHTML = `
+                <span style="background: ${statusColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">
+                    ${statusIcon} ${statusText}
+                </span>
+            `;
+            
+            document.getElementById('groupInfo').style.display = 'block';
+        }
+        
+        // Отображение участников
+        function displayParticipants() {
+            const container = document.getElementById('participantsList');
+            container.innerHTML = '';
+            
+            if (currentGroup.participants.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6C757D;">
+                        <i class="fas fa-users" style="font-size: 48px; color: #E9ECEF; margin-bottom: 16px;"></i>
+                        <p>В группе пока нет участников</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentGroup.participants.forEach(participant => {
+                const row = document.createElement('div');
+                row.className = 'participant-row';
+                
+                row.innerHTML = `
+                    <div class="participant-info">
+                        <div class="participant-avatar" style="background: ${participant.isAdmin ? '#4ECDC4' : '#FF6B6B'}">
+                            ${Utils.getAvatar(participant.name)}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${participant.name}</div>
+                            <div style="color: #6C757D; font-size: 14px;">
+                                ${participant.isAdmin ? 'Организатор' : 'Участник'}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${participant.hasWishlist ? 
+                            `<span style="color: #4ECDC4;" title="Список желаний">
+                                <i class="fas fa-list-check"></i> ${participant.wishlistCount} желаний
+                            </span>` : 
+                            '<span style="color: #6C757D; font-size: 14px;">Нет списка</span>'
+                        }
+                        ${participant.userId === JSON.parse(localStorage.getItem('user')).id ? 
+                            '<span style="color: #6C757D; font-size: 14px;">(Это вы)</span>' : ''
+                        }
+                    </div>
+                `;
+                
+                container.appendChild(row);
+            });
+        }
+        
+        // Отображение получателя
+        function displayReceiver(receiver) {
+            const receiverSection = document.getElementById('receiverSection');
+            const receiverName = document.getElementById('receiverName');
+            const wishlistItems = document.getElementById('wishlistItems');
+            
+            receiverName.textContent = receiver.name;
+            
+            if (receiver.wishlist && receiver.wishlist.length > 0) {
+                const list = document.createElement('ul');
+                list.style.listStyle = 'none';
+                list.style.padding = '0';
+                list.style.margin = '0';
+                
+                receiver.wishlist.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `🎯 ${item}`;
+                    li.style.padding = '8px 0';
+                    li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                    list.appendChild(li);
+                });
+                wishlistItems.innerHTML = '';
+                wishlistItems.appendChild(list);
+            } else {
+                wishlistItems.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 12px;"></i>
+                        <p style="opacity: 0.9;">У получателя пока нет списка желаний</p>
+                        <p style="opacity: 0.7; font-size: 14px;">Придумайте подарок самостоятельно!</p>
+                    </div>
+                `;
+            }
+            
+            receiverSection.style.display = 'block';
+        }
+
+        // Просмотр всех назначений (для админа)
+        async function viewAllAssignments() {
+            try {
+                const result = await API.getAllAssignments(currentGroupId);
+                
+                let message = '🎁 Все назначения в группе:\n\n';
+                
+                for (const [giver, receiver] of Object.entries(result.assignments)) {
+                    message += `🎅 ${giver} дарит подарок ${receiver.name}\n`;
+                    
+                    if (receiver.wishlist && receiver.wishlist.length > 0) {
+                        message += `  🎯 Желания: ${receiver.wishlist.join(', ')}\n`;
+                    }
+                    message += '\n';
+                }
+                
+                alert(message);
+            } catch (error) {
+                Utils.showNotification('Только организатор может просматривать все назначения', 'error');
+            }
+        }
+        
+        // Обновление доступных действий
+        function updateActions() {
+            const isAdmin = currentGroup.isAdmin;
+            const isActive = currentGroup.status === 'active';
+            
+            // Ссылка на список желаний
+            const wishlistLink = document.getElementById('wishlistLink');
+            wishlistLink.href = `wishlist.html?groupId=${currentGroupId}`;
+            
+            // Кнопка "Мой получатель"
+            const viewReceiverBtn = document.getElementById('viewReceiverBtn');
+            if (currentGroup.myReceiver) {
+                viewReceiverBtn.style.display = 'inline-flex';
+            }
+            
+            // Кнопка "Провести жеребьевку"
+            const startDrawBtn = document.getElementById('startDrawBtn');
+            if (isAdmin && isActive && currentGroup.participantsCount >= 2) {
+                startDrawBtn.style.display = 'inline-flex';
+            }
+            
+            // Кнопка "Показать все назначения" (только для админа)
+            const viewAllAssignmentsBtn = document.getElementById('viewAllAssignmentsBtn');
+            if (isAdmin && currentGroup.status === 'completed') {
+                viewAllAssignmentsBtn.style.display = 'inline-flex';
+            }
+            
+            document.getElementById('groupActions').style.display = 'flex';
+        }
+        
+        // Проведение жеребьевки
+        async function startDraw() {
+            if (!confirm('Провести жеребьевку?\n\nПосле этого новые участники не смогут присоединиться, а все участники увидят, кому они дарят подарки.')) {
+                return;
+            }
+            
+            try {
+                const result = await API.drawGroup(currentGroupId);
+                
+                if (result.success) {
+                    // Показываем результаты для организатора
+                    let resultsMessage = 'Жеребьевка проведена успешно!\n\nРезультаты:\n\n';
+                    
+                    for (const [giver, receiver] of Object.entries(result.results)) {
+                        resultsMessage += `${giver} → ${receiver}\n`;
+                    }
+                    
+                    resultsMessage += '\nВсе участники теперь видят своих получателей.';
+                    
+                    alert(resultsMessage);
+                    
+                    // Перезагружаем страницу
+                    loadGroup();
+                }
+            } catch (error) {
+                Utils.showNotification(error.message, 'error');
+            }
+        }
+        
+        // Просмотр получателя
+        function viewReceiver() {
+            const receiverSection = document.getElementById('receiverSection');
+            if (receiverSection.style.display === 'none') {
+                loadReceiver();
+            } else {
+                receiverSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Загрузка получателя отдельно (на случай, если не загрузился автоматически)
+        async function loadReceiver() {
+            try {
+                const result = await API.getReceiver(currentGroupId);
+                displayReceiver(result.receiver);
+                receiverSection.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                Utils.showNotification('Не удалось загрузить информацию о получателе', 'error');
+            }
+        }
+        
+        // Просмотр всех назначений (для админа)
+        async function viewAllAssignments() {
+            try {
+                const result = await API.get(`${API.baseUrl}/api/groups/${currentGroupId}/assignments`);
+                
+                let message = '🎁 Все назначения в группе:\n\n';
+                
+                for (const [giver, receiver] of Object.entries(result.assignments)) {
+                    message += `${giver} дарит подарок ${receiver.name}\n`;
+                    
+                    if (receiver.wishlist && receiver.wishlist.length > 0) {
+                        message += `  Желания: ${receiver.wishlist.join(', ')}\n`;
+                    }
+                    message += '\n';
+                }
+                
+                alert(message);
+            } catch (error) {
+                Utils.showNotification('Только организатор может просматривать все назначения', 'error');
+            }
+        }
+        
+        // Добавим функцию в API для получения всех назначений
+        if (!API.getAllAssignments) {
+            API.getAllAssignments = async function(groupId) {
+                return this.request(`/api/groups/${groupId}/assignments`);
+            };
+        }
+        
+        // Показ модального окна приглашения
+        function copyInviteLink() {
+            const modal = document.getElementById('inviteModal');
+            const inviteLink = document.getElementById('inviteLink');
+            const inviteCode = document.getElementById('inviteCode');
+            
+            const link = `${window.location.origin}/join-group.html?code=${currentGroup.code}`;
+            
+            inviteLink.value = link;
+            inviteCode.value = currentGroup.code;
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Закрытие модального окна
+        function closeInviteModal() {
+            document.getElementById('inviteModal').style.display = 'none';
+        }
+        
+        // Копирование ссылки
+        function copyLink() {
+            const link = document.getElementById('inviteLink').value;
+            Utils.copyToClipboard(link);
+        }
+        
+        // Копирование кода
+        function copyCode() {
+            const code = document.getElementById('inviteCode').value;
+            Utils.copyToClipboard(code);
+        }
+        
+        // Закрытие модального окна по клику вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('inviteModal');
+            if (event.target === modal) {
+                closeInviteModal();
+            }
+        }
+        
+        // Загружаем группу при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadGroup);
+    </script>
+</body>
+</html>

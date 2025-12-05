@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать группу - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-gift"></i>
+                Тайный Санта
+            </a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Мои группы
+                </a>
+                <a href="create-group.html" class="nav-link active">
+                    <i class="fas fa-plus"></i> Создать группу
+                </a>
+                <a href="join-group.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <button onclick="API.logout()" class="btn btn-secondary btn-small">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container dashboard">
+        <div class="section-title">
+            <h1>Создать новую группу</h1>
+            <a href="dashboard.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+        
+        <div class="card">
+            <form id="createGroupForm">
+                <div class="form-group">
+                    <label for="name">Название группы *</label>
+                    <input type="text" id="name" name="name" class="form-control" 
+                           placeholder="Например: Семья 2024, Офисные друзья" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Описание (необязательно)</label>
+                    <textarea id="description" name="description" class="form-control" 
+                              placeholder="Расскажите немного о вашей группе..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxParticipants">Максимальное количество участников</label>
+                    <select id="maxParticipants" name="maxParticipants" class="form-control">
+                        <option value="10">10 человек</option>
+                        <option value="20" selected>20 человек</option>
+                        <option value="30">30 человек</option>
+                        <option value="50">50 человек</option>
+                    </select>
+                </div>
+                
+                <div style="background: #F7FFF7; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                    <h3 style="margin-bottom: 16px;">Настройки приватности</h3>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" id="isPublic" name="isPublic">
+                            <label for="isPublic" style="margin: 0; font-weight: 500;">
+                                Сделать группу публичной
+                            </label>
+                        </div>
+                        <small style="color: #6C757D; display: block; margin-top: 4px;">
+                            Публичные группы видны всем пользователям
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Пароль для вступления (необязательно)</label>
+                        <input type="password" id="password" name="password" class="form-control" 
+                               placeholder="Оставьте пустым, если пароль не нужен">
+                        <small style="color: #6C757D; display: block; margin-top: 4px;">
+                            Если задать пароль, участникам нужно будет ввести его для присоединения
+                        </small>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 32px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-plus"></i> Создать группу
+                    </button>
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.handleFormSubmit = async function(formId, data) {
+            if (formId === 'createGroupForm') {
+                try {
+                    // Преобразуем значения
+                    const groupData = {
+                        name: data.name,
+                        description: data.description,
+                        password: data.password || '',
+                        maxParticipants: parseInt(data.maxParticipants),
+                        isPublic: data.isPublic === 'on'
+                    };
+                    
+                    const result = await API.createGroup(groupData);
+                    
+                    if (result.success) {
+                        Utils.showNotification('Группа создана успешно!');
+                        
+                        // Показываем информацию о приглашении
+                        const message = `Группа "${result.group.name}" создана!\n\n` +
+                                      `Код группы: ${result.group.code}\n` +
+                                      `Ссылка для приглашения: ${result.group.inviteLink}\n\n` +
+                                      `Скопируйте эту информацию, чтобы поделиться с друзьями.`;
+                        
+                        if (confirm(message + '\n\nОткрыть страницу группы?')) {
+                            window.location.href = `group.html?id=${result.group.id}`;
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+        };
+    </script>
+</body>
+</html>

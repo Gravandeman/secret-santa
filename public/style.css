@@ -1,0 +1,516 @@
+/* CSS Reset и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #FF6B6B;
+    --primary-dark: #FF5252;
+    --secondary: #4ECDC4;
+    --dark: #292F36;
+    --light: #F7FFF7;
+    --gray: #6C757D;
+    --gray-light: #E9ECEF;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--dark);
+    border: 2px solid var(--gray-light);
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--gray-light);
+    border-radius: var(--radius);
+    font-size: 16px;
+    transition: var(--transition);
+    background: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Карточки */
+.card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+/* Навигация */
+.navbar {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    color: var(--primary);
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--dark);
+}
+
+/* Главная страница */
+.hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 24px;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 40px;
+}
+
+/* Страница входа/регистрации */
+.auth-container {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 0 16px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow);
+}
+
+/* Дашборд */
+.dashboard {
+    padding: 40px 0;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.group-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.group-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.group-code {
+    background: var(--light);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.group-meta {
+    display: flex;
+    gap: 16px;
+    color: var(--gray);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* Страница группы */
+.group-info {
+    margin-bottom: 32px;
+}
+
+.participants-list {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+.participant-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.participant-row:last-child {
+    border-bottom: none;
+}
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.admin-badge {
+    background: var(--secondary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Страница списка желаний */
+.wishlist-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.wishlist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--light);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+}
+
+.wishlist-item input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    padding: 8px;
+}
+
+.wishlist-item button {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0 8px;
+}
+
+/* Страница присоединения */
+.join-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 0 16px;
+}
+
+.tab-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 12px;
+    background: var(--gray-light);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.tab-button.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .navbar-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-menu.active {
+        display: flex;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .groups-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .participant-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+/* Утилиты */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 32px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.mb-4 { margin-bottom: 32px; }
+.hidden { display: none; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.w-full { width: 100%; }
+
+/* Дополнительные стили для участников */
+.participant-row:hover {
+    background: #f8f9fa;
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Кнопки действий */
+.group-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 24px 0;
+}
+
+.group-actions .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .group-actions {
+        flex-direction: column;
+    }
+    
+    .group-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

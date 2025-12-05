@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список желаний - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .wishlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .wishlist-instructions {
+            background: #F7FFF7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .wishlist-items-container {
+            margin-top: 24px;
+        }
+        
+        .wishlist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 2px solid #E9ECEF;
+            transition: all 0.3s ease;
+        }
+        
+        .wishlist-item:hover {
+            border-color: #4ECDC4;
+        }
+        
+        .wishlist-item input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            padding: 8px;
+        }
+        
+        .wishlist-item input:focus {
+            outline: none;
+        }
+        
+        .wishlist-item button {
+            background: none;
+            border: none;
+            color: #FF6B6B;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .wishlist-item button:hover {
+            background: #FF6B6B;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6C757D;
+        }
+        
+        .add-item-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #E9ECEF;
+        }
+        
+        #statusMessage {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-gift"></i>
+                Тайный Санта
+            </a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Мои группы
+                </a>
+                <a href="create-group.html" class="nav-link">
+                    <i class="fas fa-plus"></i> Создать группу
+                </a>
+                <a href="join-group.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <button onclick="API.logout()" class="btn btn-secondary btn-small">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container dashboard">
+        <div class="wishlist-header">
+            <h1 id="groupTitle">Список желаний</h1>
+            <a href="#" id="backLink" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к группе
+            </a>
+        </div>
+        
+        <div class="wishlist-instructions">
+            <h3 style="margin-bottom: 12px;"><i class="fas fa-lightbulb"></i> Как это работает?</h3>
+            <p style="margin: 0; color: #6C757D;">
+                Добавьте вещи, которые вы хотели бы получить в подарок. 
+                После жеребьевки ваш Тайный Санта увидит этот список и сможет выбрать подарок из него.
+                Вы можете добавлять, редактировать и удалять пункты в любое время.
+            </p>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 20px;" id="currentGroupName">Загрузка...</h3>
+            
+            <!-- Сообщение о статусе -->
+            <div id="statusMessage"></div>
+            
+            <!-- Форма добавления нового пункта -->
+            <div class="add-item-form">
+                <input type="text" id="newItem" class="form-control" 
+                       placeholder="Например: Книга, Набор для чая, Теплые носки, Подарочная карта...">
+                <button onclick="addItem()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить
+                </button>
+            </div>
+            
+            <!-- Список желаний -->
+            <div id="wishlistItems" class="wishlist-items-container">
+                <!-- Элементы будут добавлены здесь -->
+            </div>
+            
+            <!-- Состояние "пусто" -->
+            <div id="emptyWishlist" class="empty-state" style="display: none;">
+                <i class="fas fa-list" style="font-size: 64px; color: #E9ECEF; margin-bottom: 16px;"></i>
+                <p>Ваш список желаний пока пуст</p>
+                <p style="font-size: 14px;">Добавьте первый пункт выше</p>
+            </div>
+            
+            <!-- Кнопки действий -->
+            <div class="actions">
+                <button onclick="saveWishlist()" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-save"></i> Сохранить список
+                </button>
+                <button onclick="clearWishlist()" class="btn btn-secondary">
+                    <i class="fas fa-trash"></i> Очистить всё
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentGroupId = null;
+        let currentGroupName = '';
+        let wishlistItems = [];
+        
+        // Загрузка страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Получаем ID группы из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentGroupId = urlParams.get('groupId');
+            
+            if (!currentGroupId) {
+                showError('Ошибка: ID группы не указан');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                return;
+            }
+            
+            try {
+                // Загружаем информацию о группе
+                const groupResult = await API.getGroup(currentGroupId);
+                if (!groupResult.success) {
+                    throw new Error(groupResult.error || 'Ошибка загрузки группы');
+                }
+                
+                currentGroupName = groupResult.group.name;
+                document.getElementById('groupTitle').textContent = `Список желаний: ${currentGroupName}`;
+                document.getElementById('currentGroupName').textContent = currentGroupName;
+                
+                // Настраиваем ссылку "Назад"
+                document.getElementById('backLink').href = `group.html?id=${currentGroupId}`;
+                
+                // Загружаем существующий список желаний
+                await loadWishlist();
+                
+                // Отображаем список
+                renderWishlist();
+                
+                // Разрешаем добавлять элементы по Enter
+                document.getElementById('newItem').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addItem();
+                    }
+                });
+                
+                // Показываем уведомление, если группа завершена
+                if (groupResult.group.status === 'completed') {
+                    showMessage('⚠️ Жеребьевка уже проведена. Ваш список желаний больше нельзя изменить.', 'info');
+                }
+                
+            } catch (error) {
+                showError('Ошибка загрузки: ' + error.message);
+                setTimeout(() => window.location.href = 'dashboard.html', 3000);
+            }
+        });
+        
+        // Загрузка списка желаний
+        async function loadWishlist() {
+            try {
+                const result = await API.getWishlist(currentGroupId);
+                if (result.success) {
+                    wishlistItems = [...result.wishlist];
+                }
+            } catch (error) {
+                console.warn('Ошибка загрузки списка желаний:', error);
+                wishlistItems = [];
+            }
+        }
+        
+        // Отображение списка желаний
+        function renderWishlist() {
+            const container = document.getElementById('wishlistItems');
+            const emptyState = document.getElementById('emptyWishlist');
+            
+            if (wishlistItems.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'block';
+            emptyState.style.display = 'none';
+            container.innerHTML = '';
+            
+            wishlistItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'wishlist-item';
+                itemElement.innerHTML = `
+                    <span style="color: #FF6B6B; font-weight: bold;">${index + 1}.</span>
+                    <input type="text" value="${item}" 
+                           oninput="updateItem(${index}, this.value)"
+                           placeholder="Описание желания">
+                    <button onclick="removeItem(${index})" title="Удалить">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(itemElement);
+            });
+        }
+        
+        // Добавление нового пункта
+        function addItem() {
+            const input = document.getElementById('newItem');
+            const text = input.value.trim();
+            
+            if (!text) {
+                showMessage('Введите текст для добавления', 'error');
+                return;
+            }
+            
+            if (wishlistItems.length >= 20) {
+                showMessage('Максимум 20 пунктов в списке', 'error');
+                return;
+            }
+            
+            wishlistItems.push(text);
+            input.value = '';
+            renderWishlist();
+            showMessage('Пункт добавлен. Не забудьте сохранить изменения!', 'success');
+        }
+        
+        // Обновление пункта
+        function updateItem(index, value) {
+            if (index >= 0 && index < wishlistItems.length) {
+                wishlistItems[index] = value.trim();
+            }
+        }
+        
+        // Удаление пункта
+        function removeItem(index) {
+            if (index >= 0 && index < wishlistItems.length) {
+                if (confirm('Удалить этот пункт из списка?')) {
+                    wishlistItems.splice(index, 1);
+                    renderWishlist();
+                }
+            }
+        }
+        
+        // Сохранение списка желаний
+        async function saveWishlist() {
+            try {
+                // Проверяем, что группа активна
+                const groupResult = await API.getGroup(currentGroupId);
+                if (groupResult.group.status === 'completed') {
+                    showMessage('Жеребьевка уже проведена. Изменения невозможны.', 'error');
+                    return;
+                }
+                
+                const result = await API.saveWishlist(currentGroupId, wishlistItems);
+                if (result.success) {
+                    showMessage(result.message || 'Список желаний сохранен!', 'success');
+                } else {
+                    showMessage(result.error || 'Ошибка сохранения', 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка: ' + error.message, 'error');
+            }
+        }
+        
+        // Очистка списка
+        function clearWishlist() {
+            if (wishlistItems.length === 0) return;
+            
+            if (confirm('Очистить весь список желаний? Это действие нельзя отменить.')) {
+                wishlistItems = [];
+                renderWishlist();
+                showMessage('Список очищен. Не забудьте сохранить изменения!', 'info');
+            }
+        }
+        
+        // Вспомогательные функции для сообщений
+        function showMessage(text, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = text;
+            statusDiv.className = '';
+            statusDiv.classList.add(`status-${type}`);
+            statusDiv.style.display = 'block';
+            
+            // Автоскрытие для успешных сообщений
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        function showError(text) {
+            showMessage(text, 'error');
+        }
+    </script>
+</body>
+</html>

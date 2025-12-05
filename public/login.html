@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <div class="text-center mb-4">
+                <a href="/" class="navbar-brand" style="font-size: 2rem; display: inline-block;">
+                    <i class="fas fa-gift"></i>
+                    Тайный Санта
+                </a>
+            </div>
+            
+            <div class="auth-card">
+                <h2 class="text-center">Вход в аккаунт</h2>
+                <p class="text-center" style="color: #6C757D; margin-bottom: 32px;">
+                    Введите свои данные для входа
+                </p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               placeholder="ваш@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <div style="position: relative;">
+                            <input type="password" id="password" name="password" class="form-control" 
+                                   placeholder="Ваш пароль" required>
+                            <button type="button" onclick="Utils.togglePassword('password')" 
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; color: #6C757D; cursor: pointer;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full mt-3">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+                    <p><a href="/">← На главную</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.handleFormSubmit = async function(formId, data) {
+            if (formId === 'loginForm') {
+                try {
+                    const result = await API.login(data.email, data.password);
+                    
+                    if (result.success) {
+                        localStorage.setItem('token', result.token);
+                        localStorage.setItem('user', JSON.stringify(result.user));
+                        
+                        Utils.showNotification('Успешный вход!');
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1000);
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+        };
+    </script>
+</body>
+</html>

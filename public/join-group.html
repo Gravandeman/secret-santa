@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Присоединиться к группе - Тайный Санта</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .public-groups {
+            margin-top: 32px;
+        }
+        
+        .group-list-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .group-list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .group-meta {
+            display: flex;
+            gap: 16px;
+            color: #6C757D;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-gift"></i>
+                Тайный Санта
+            </a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Мои группы
+                </a>
+                <a href="create-group.html" class="nav-link">
+                    <i class="fas fa-plus"></i> Создать группу
+                </a>
+                <a href="join-group.html" class="nav-link active">
+                    <i class="fas fa-user-plus"></i> Присоединиться
+                </a>
+                <button onclick="API.logout()" class="btn btn-secondary btn-small">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container dashboard">
+        <div class="section-title">
+            <h1>Присоединиться к группе</h1>
+            <a href="dashboard.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 24px;">Выберите способ присоединения</h3>
+            
+            <div class="tab-buttons">
+                <button type="button" class="tab-button active" onclick="showTab('byCode')">
+                    <i class="fas fa-key"></i> По коду
+                </button>
+                <button type="button" class="tab-button" onclick="showTab('byLink')">
+                    <i class="fas fa-link"></i> По ссылке
+                </button>
+                <button type="button" class="tab-button" onclick="showTab('public')">
+                    <i class="fas fa-globe"></i> Публичные
+                </button>
+            </div>
+            
+            <!-- По коду -->
+            <div id="tabByCode" class="tab-content">
+                <form id="joinByCodeForm">
+                    <div class="form-group">
+                        <label for="code">Код группы</label>
+                        <input type="text" id="code" name="code" class="form-control" 
+                               placeholder="Введите 6-значный код" required 
+                               pattern="[A-Z0-9]{6}" style="text-transform: uppercase;">
+                        <small style="color: #6C757D; display: block; margin-top: 4px;">
+                            Код состоит из 6 заглавных букв и цифр
+                        </small>
+                    </div>
+                    
+                    <div class="form-group" id="passwordField" style="display: none;">
+                        <label for="password">Пароль группы</label>
+                        <input type="password" id="password" name="password" class="form-control" 
+                               placeholder="Введите пароль">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-door-open"></i> Присоединиться
+                    </button>
+                </form>
+            </div>
+            
+            <!-- По ссылке -->
+            <div id="tabByLink" class="tab-content" style="display: none;">
+                <div class="form-group">
+                    <label for="link">Ссылка на группу</label>
+                    <input type="url" id="link" class="form-control" 
+                           placeholder="https://... или http://...">
+                </div>
+                <button onclick="joinByLink()" class="btn btn-primary btn-full">
+                    <i class="fas fa-external-link-alt"></i> Перейти по ссылке
+                </button>
+                
+                <div style="margin-top: 24px; padding: 16px; background: #F7FFF7; border-radius: 8px;">
+                    <p style="margin: 0; color: #6C757D;">
+                        <i class="fas fa-info-circle"></i> Просто вставьте ссылку, которую вам отправили
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Публичные группы -->
+            <div id="tabPublic" class="tab-content" style="display: none;">
+                <div class="form-group">
+                    <label for="search">Поиск групп</label>
+                    <input type="text" id="search" class="form-control" 
+                           placeholder="Поиск по названию или коду..."
+                           oninput="searchPublicGroups(this.value)">
+                </div>
+                
+                <div id="publicGroupsList" class="public-groups">
+                    <!-- Публичные группы будут загружены здесь -->
+                </div>
+                
+                <div id="noPublicGroups" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-users" style="font-size: 48px; color: #E9ECEF; margin-bottom: 16px;"></i>
+                    <p style="color: #6C757D;">Публичные группы не найдены</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 32px; text-align: center;">
+            <a href="create-group.html" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Создать свою группу
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentGroupCode = '';
+        let currentGroupRequiresPassword = false;
+        
+        // Показ вкладок
+        function showTab(tabName) {
+            // Обновляем кнопки
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Показываем нужную вкладку
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).style.display = 'block';
+            
+            // Если это вкладка публичных групп, загружаем их
+            if (tabName === 'public') {
+                loadPublicGroups();
+            }
+        }
+        
+        // Проверка кода группы при вводе
+        document.getElementById('code').addEventListener('input', async function(e) {
+            const code = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            e.target.value = code;
+            
+            if (code.length === 6) {
+                try {
+                    const result = await API.getGroupByCode(code);
+                    if (result.group) {
+                        currentGroupCode = code;
+                        currentGroupRequiresPassword = result.group.isPasswordProtected;
+                        
+                        const passwordField = document.getElementById('passwordField');
+                        if (currentGroupRequiresPassword) {
+                            passwordField.style.display = 'block';
+                            document.getElementById('password').required = true;
+                        } else {
+                            passwordField.style.display = 'none';
+                            document.getElementById('password').required = false;
+                        }
+                    }
+                } catch (error) {
+                    // Группа не найдена или другая ошибка
+                    currentGroupCode = '';
+                    currentGroupRequiresPassword = false;
+                    document.getElementById('passwordField').style.display = 'none';
+                }
+            }
+        });
+        
+        // Форма присоединения по коду
+        window.handleFormSubmit = async function(formId, data) {
+            if (formId === 'joinByCodeForm') {
+                try {
+                    const result = await API.joinGroup(data.code.toUpperCase(), data.password || '');
+                    
+                    if (result.success) {
+                        Utils.showNotification('Вы успешно присоединились к группе!');
+                        setTimeout(() => {
+                            window.location.href = `group.html?id=${result.group.id}`;
+                        }, 1000);
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+        };
+        
+        // Присоединение по ссылке
+        function joinByLink() {
+            const link = document.getElementById('link').value;
+            
+            if (!link) {
+                Utils.showNotification('Введите ссылку', 'error');
+                return;
+            }
+            
+            // Извлекаем код из ссылки
+            const url = new URL(link);
+            const code = url.searchParams.get('code');
+            
+            if (code) {
+                document.getElementById('code').value = code;
+                showTab('byCode');
+                // Триггерим проверку кода
+                document.getElementById('code').dispatchEvent(new Event('input'));
+            } else {
+                Utils.showNotification('Ссылка не содержит код группы', 'error');
+            }
+        }
+        
+        // Загрузка публичных групп
+        async function loadPublicGroups(search = '') {
+            try {
+                const result = await API.searchGroups(search);
+                const container = document.getElementById('publicGroupsList');
+                const emptyState = document.getElementById('noPublicGroups');
+                
+                if (result.groups.length === 0) {
+                    container.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                emptyState.style.display = 'none';
+                container.innerHTML = '';
+                
+                result.groups.forEach(group => {
+                    const groupItem = document.createElement('div');
+                    groupItem.className = 'group-list-item';
+                    groupItem.innerHTML = `
+                        <div class="group-header">
+                            <div>
+                                <h4 style="margin: 0 0 4px 0;">${group.name}</h4>
+                                <p style="color: #6C757D; margin: 0; font-size: 14px;">${group.description || ''}</p>
+                            </div>
+                            <span style="background: #F7FFF7; padding: 4px 12px; border-radius: 20px; 
+                                  font-family: monospace; font-weight: 600; font-size: 14px;">
+                                ${group.code}
+                            </span>
+                        </div>
+                        
+                        <div class="group-meta">
+                            <span><i class="fas fa-users"></i> ${group.participantsCount}/${group.maxParticipants}</span>
+                            <span><i class="fas fa-user"></i> ${group.adminName}</span>
+                            ${group.isPasswordProtected ? 
+                                '<span><i class="fas fa-lock"></i> С паролем</span>' : 
+                                '<span><i class="fas fa-unlock"></i> Без пароля</span>'
+                            }
+                        </div>
+                        
+                        <button onclick="joinPublicGroup('${group.code}')" class="btn btn-primary btn-full">
+                            <i class="fas fa-door-open"></i> Присоединиться
+                        </button>
+                    `;
+                    container.appendChild(groupItem);
+                });
+            } catch (error) {
+                console.error('Error loading public groups:', error);
+            }
+        }
+        
+        // Поиск публичных групп
+        function searchPublicGroups(query) {
+            loadPublicGroups(query);
+        }
+        
+        // Присоединение к публичной группе
+        function joinPublicGroup(code) {
+            document.getElementById('code').value = code;
+            showTab('byCode');
+            document.getElementById('code').dispatchEvent(new Event('input'));
+        }
+        
+        // Проверяем код в URL параметрах
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeFromUrl = urlParams.get('code');
+            
+            if (codeFromUrl) {
+                document.getElementById('code').value = codeFromUrl.toUpperCase();
+                showTab('byCode');
+                document.getElementById('code').dispatchEvent(new Event('input'));
+            }
+        });
+    </script>
+</body>
+</html>
